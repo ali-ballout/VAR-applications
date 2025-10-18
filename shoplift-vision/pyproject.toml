@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = "\\.pyi?$"
+
+[tool.isort]
+profile = "black"
+known_first_party = ["shoplift_vision"]
+line_length = 88
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "UP", "B", "C4", "TID", "S", "N", "RET", "SIM", "ERA"]
+ignore = ["E501"]
+exclude = ["build", "dist", ".venv"]
+
+[tool.ruff.isort]
+known-first-party = ["shoplift_vision"]
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+pretty = true
+warn_return_any = true
+warn_unused_configs = true

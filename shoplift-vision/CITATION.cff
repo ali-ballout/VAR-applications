@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: shoplift-vision
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+abstract: "shoplift-vision is a video action recognition toolkit providing zero-shot and fine-tuning pipelines for shoplifting detection."
+repository-code: https://github.com/example/shoplift-vision
+license: MIT
+authors:
+  - family-names: Doe
+    given-names: Jordan
+    affiliation: Example Labs
+    orcid: https://orcid.org/0000-0000-0000-0000
+keywords:
+  - video action recognition
+  - shoplifting detection
+  - computer vision
+  - transformers
+version: 0.1.0
+date-released: 2024-01-01
