@@ -1,0 +1,23 @@
+labels:
+  - shoplifting
+  - no_shoplifting
+prompts:
+  shoplifting:
+    - "a surveillance video of a person stealing items from a store"
+    - "someone concealing merchandise without paying in a retail shop"
+    - "a theft occurring inside a supermarket"
+  no_shoplifting:
+    - "normal shopping behavior in a store"
+    - "a customer browsing items and paying at checkout"
+    - "people legitimately purchasing goods in retail"
+model:
+  name: mslong/X-CLIP-base-patch16
+video:
+  num_frames: 16
+  sampling_strategy: uniform
+  fps: 16
+  img_size: 224
+  clip_seconds: 4
+aggregation:
+  method: mean
+  temperature: 0.02

@@ -1,0 +1,25 @@
+seed: 42
+device: "cuda"  # use "cpu" to force CPU inference
+num_workers: 4
+
+paths:
+  data_dir: data
+  runs_dir: runs
+
+video:
+  clip_seconds: 4
+  fps: 16
+  num_frames: 16
+  img_size: 224
+
+train:
+  batch_size: 4
+  eval_batch_size: 4
+  epochs: 5
+  learning_rate: 5e-5
+  weight_decay: 0.01
+  fp16: false
+
+labels:
+  - shoplifting
+  - no_shoplifting
