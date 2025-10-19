@@ -73,11 +73,32 @@ You can use `scripts/prepare_dataset.py` to convert CSV annotations into this la
 ### 4. Zero-Shot Inference (No Training Needed)
 ```bash
 python src/shoplift_vision/infer_zeroshot.py \
-  --video demo_videos/shop1.mp4 \
+  --video demo_videos/sample_checkout.mp4 \
   --config configs/zero_shot.yaml \
   --labels "shoplifting,no_shoplifting"
 ```
 This samples frames from the video, encodes them with X-CLIP, compares against natural-language prompts, and prints class probabilities.
+
+> **Offline sanity check:** If you're working in a network-isolated environment you can still validate the CPU pipeline with the
+> lightweight fallback model and a tiny synthetic clip. Generate the clip once using ImageIO (installed with the default requirements):
+> ```bash
+> mkdir -p demo_videos
+> python - <<'PY'
+> import imageio.v2 as imageio
+> import numpy as np
+> frames = []
+> for i in range(8):
+>     base = np.zeros((240, 320, 3), dtype=np.uint8)
+>     base[:, :, 1] = (i * 32) % 255  # green pulse
+>     base[:, :, 2] = ((7 - i) * 32) % 255  # magenta pulse
+>     frames.append(base)
+> imageio.mimsave("demo_videos/dummy.gif", frames, fps=4)
+> PY
+> HF_HUB_OFFLINE=1 python src/shoplift_vision/infer_zeroshot.py \
+>   --config configs/dummy_zero_shot.yaml \
+>   --video demo_videos/dummy.gif
+> ```
+> The dummy model produces deterministic probabilities without downloading large checkpoints, which makes it ideal for quick integration tests.
 
 ### 5. Fine-Tune VideoMAE on Your Dataset
 ```bash
@@ -91,7 +112,7 @@ This command will:
 After training, run inference with the best checkpoint:
 ```bash
 python src/shoplift_vision/infer_finetuned.py \
-  --video demo_videos/shop2.mp4 \
+  --video demo_videos/sample_entry.mp4 \
   --checkpoint runs/shoplifting_videomae/best.pt \
   --config configs/shoplifting_videomae.yaml
 ```
@@ -163,3 +184,32 @@ This project is released under the [MIT License](LICENSE).
 If you use **shoplift-vision** in academic work, please cite the project using the metadata in `CITATION.cff`.
 
 Happy building!
+
+## How To: Obtain Demo Videos and Public Datasets
+
+### How To: Download Sample Demo Clips
+1. Create a folder to store example clips:
+   ```bash
+   mkdir -p demo_videos
+   ```
+2. Download two royalty-free clips that work well with the commands in this README:
+   ```bash
+   curl -L -o demo_videos/sample_checkout.mp4 \
+    https://samplelib.com/lib/preview/mp4/sample-5s.mp4
+   curl -L -o demo_videos/sample_entry.mp4 \
+    https://samplelib.com/lib/preview/mp4/sample-10s.mp4
+   ```
+3. Re-run the zero-shot and fine-tuned inference commands using these files. The sample clips are generic retail scenes, making them convenient stand-ins for quick demos.
+
+### How To: Download Public Action-Recognition Datasets
+1. **UCF101** (action classification, 13K videos):
+   - Request access and download the archive from the official dataset page: <https://www.crcv.ucf.edu/data/UCF101.php>
+   - Extract the videos and use `scripts/prepare_dataset.py --ucf101` to convert them into the `data/{split}/{class}` layout.
+2. **HMDB51** (human motion recognition, 7K videos):
+   - Download the dataset from <https://serre-lab.clps.brown.edu/resource/hmdb-a-large-human-motion-database/>
+   - Use the provided train/test splits or generate your own with `scripts/prepare_dataset.py --hmdb51` before fine-tuning.
+3. **Kinetics-400** (large-scale action dataset):
+   - Obtain the metadata CSV and download links from <https://deepmind.google-research.google/video-understanding/kinetics>
+   - Filter to the retail-relevant classes, then feed the downloaded videos through `scripts/prepare_dataset.py --from-csv path/to/csv` to create curated training splits.
+
+Each dataset URL requires accepting the dataset-specific license terms. After downloading, point the configs to the new class labels or prompts before launching training or inference.
