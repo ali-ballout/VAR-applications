@@ -1,0 +1,17 @@
+labels:
+  - shoplifting
+  - no_shoplifting
+prompts:
+  shoplifting:
+    - "a surveillance clip with suspicious behavior"
+    - "a person concealing items in a retail store"
+  no_shoplifting:
+    - "customers browsing shelves normally"
+    - "people paying for products at checkout"
+model:
+  name: dummy
+video:
+  num_frames: 8
+  sampling_strategy: uniform
+  fps: 8
+  img_size: 224

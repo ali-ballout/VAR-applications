@@ -52,6 +52,34 @@ def _load_with_torchvision(path: str) -> Tuple[np.ndarray, float, float]:
     return frames, fps, duration
 
 
+def _load_with_pillow(path: str) -> Tuple[np.ndarray, float, float]:
+    from PIL import Image, ImageSequence
+
+    with Image.open(path) as img:
+        frames = [np.array(frame.convert("RGB")) for frame in ImageSequence.Iterator(img)]
+        if not frames:
+            raise ValueError(f"No frames found in animated image: {path}")
+        duration_ms = float(img.info.get("duration", 100))
+    fps = 1000.0 / duration_ms if duration_ms > 0 else 10.0
+    duration = len(frames) / fps if fps > 0 else float(len(frames))
+    return np.stack(frames), fps, duration
+
+
+def _load_from_numpy(path: str) -> Tuple[np.ndarray, float, float]:
+    array = np.load(path)
+    if isinstance(array, np.lib.npyio.NpzFile):
+        if "frames" not in array:
+            raise KeyError("Expected 'frames' key in npz container")
+        frames = array["frames"]
+    else:
+        frames = array
+    if frames.ndim != 4:
+        raise ValueError("NumPy video array must have shape (T, H, W, C)")
+    fps = 30.0
+    duration = frames.shape[0] / fps if fps > 0 else float(frames.shape[0])
+    return frames.astype(np.float32), fps, duration
+
+
 def load_video_frames(
     path: str,
     num_frames: int,
@@ -67,9 +95,15 @@ def load_video_frames(
     if not os.path.exists(path):
         raise FileNotFoundError(path)
 
-    frames_np, native_fps, duration = (
-        _load_with_decord(path) if _HAS_DECORD else _load_with_torchvision(path)
-    )
+    ext = os.path.splitext(path)[1].lower()
+    if ext in {".gif", ".apng"}:
+        frames_np, native_fps, duration = _load_with_pillow(path)
+    elif ext in {".npy", ".npz"}:
+        frames_np, native_fps, duration = _load_from_numpy(path)
+    else:
+        frames_np, native_fps, duration = (
+            _load_with_decord(path) if _HAS_DECORD else _load_with_torchvision(path)
+        )
     total_frames = frames_np.shape[0]
     effective_fps = fps or native_fps or 30.0
     indices = temporal_sampling(total_frames, num_frames, strategy=strategy, stride=stride)
