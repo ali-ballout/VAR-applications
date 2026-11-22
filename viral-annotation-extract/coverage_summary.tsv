@@ -1,0 +1,4 @@
+cohort	n_viruses	exact_annotated	descendant_only	no_annotation	pct_any_annotation	pct_exact	viruses_with_mf	viruses_with_bp	viruses_with_cc	viruses_with_manual_nonIEA	viruses_with_iea	viruses_with_eligible_go	sum_distinct_go_assignments	family_only_promoted	missing
+all_study_viruses	3288	244	1289	1755	46.62	7.42	1441	1437	1512	297	1533	1533	56178	0	1755
+multi_host_benchmark	406	61	302	43	89.41	15.02	356	356	358	153	363	363	17449	0	43
+historical_test_viruses	54	11	41	2	96.3	20.37	52	52	52	25	52	52	2770	0	2

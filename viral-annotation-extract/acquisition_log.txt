@@ -1,0 +1,63 @@
+ACQUISITION LOG — virus-specific functional annotations
+generated_utc: 2026-11-22T23:04:18.899768+00:00
+historical cutoff: 2026-08-18
+
+INPUT VERIFICATION
+  handoff archive rebuilt from 6 Google Drive parts -> 127,544,705 bytes
+  SHA-256 2c79dd5143f6050109c2fe3372d175b66c453152d644b19adb9e88425e54a235 == published digest: MATCH
+  all 18 files in HANDOFF_MANIFEST.json verified: 18/18 MATCH
+  VIRUS_ONTOLOGY_SOURCES.zip sha256 f94bc0877bc2d15e958fb1f1480012f676dcda4ba643caa45150fb48f86dfb6b == recorded: MATCH
+  study_virus_ids.tsv -> 3288 unique TaxIDs, 406 multi_host_benchmark=1, 54 historical_test_virus=1: MATCH expected counts
+  all 3288 TaxIDs present in pinned NCBITaxon v2026-07-12; all at rank 'species'
+
+SOURCES ATTEMPTED AND OUTCOME
+  [OK]      QuickGO annotation API — snapshot 2026-07-28 10:08 UTC (= UniProt-GOA release 236)
+            503 taxonId batches (<=50 ids each), 0 failures, 4,573,303 annotation rows
+  [OK]      UniProt REST (release 2026_04) — 132 taxonomy_id batches, 0 failures, 370,585 protein records
+  [OK]      Gene Ontology go-basic.obo — data-version releases/2026-07-26
+  [OK]      ViralZone — 1,170 pages requested, 1,163 retrieved, 7 failed (see below)
+  [OK]      NCBITaxon v2026-07-12 — read from the handoff package, not re-downloaded
+  [NOT USED] ftp.ebi.ac.uk GOA archive goa_uniprot_all.gaf.236.gz (11,714,420,656 bytes)
+            Reachable and its headers were used as corroboration, but downloading it was unnecessary:
+            QuickGO serves the same release 236 snapshot, filtered server-side by TaxID.
+  [BLOCKED] ftp.uniprot.org — connection times out from this workspace (EBI mirror used instead)
+  [NOT AVAILABLE] UniProt archived release 2026_02 Swiss-Prot flat file was downloaded and MD5-verified
+            (e2ddaeb6739a3771e9748e7db5573c6a) in an earlier pass, then deleted at the user's request.
+            It is NOT part of this deliverable. Reviewed-entry GO evidence here comes from QuickGO instead.
+
+ELIGIBILITY DETERMINATION
+  QuickGO /annotation/about reports annotation snapshot timestamp 2026-07-28 10:08 UTC.
+  Max annotation DATE observed across all 4,573,303 rows: 2026-07-27. Rows dated after 2026-08-18: 0.
+  Therefore every GO annotation row is temporally eligible on a DATED SNAPSHOT basis,
+  not merely on the annotation's own date field.
+  UniProt protein records are release 2026_04 (2026-11-04) = AFTER cutoff: used only for
+  protein/organism identity, never as annotation evidence. Flagged in the manifest.
+  ViralZone has no dated release: all its rows carry temporally_eligible=false.
+
+MAPPING POLICY APPLIED
+  EXACT                annotation organism taxid == study species taxid
+  VERIFIED_DESCENDANT  organism taxid descends from exactly one study species (NCBITaxon v2026-07-12 is_a path)
+  AMBIGUOUS            descends from >1 study species — 0 such cases found
+  UNMAPPED             no path to any study species — 684 annotation rows over 2 taxids, held in
+                       unmapped_annotation_records.tsv.gz, excluded from the main annotation table
+  FAMILY_ONLY          ViralZone family text; never promoted to any species TaxID
+
+VIRALZONE HOST-LEAKAGE EXCLUSION
+  Sections whose heading or opening text matched host|receptor|tropism|transmission|vector|
+  reservoir|pathology|epidemiology|zoonosis|species range were retained as rows but with the text
+  blanked and inclusion_status=EXCLUDED_HOST_LEAKAGE_RISK. 206 sections were withheld this way.
+  42 of 64 study virus families matched at least one ViralZone page; 22 families matched none.
+
+COVERAGE (see coverage_summary.tsv)
+  all_study_viruses          n= 3288  exact= 244  strain_only=1289  none=1755  any=46.62%
+  multi_host_benchmark       n=  406  exact=  61  strain_only= 302  none=  43  any=89.41%
+  historical_test_viruses    n=   54  exact=  11  strain_only=  41  none=   2  any=96.3%
+
+  NOTE: coverage is strongly non-random across cohorts (46.6% of all study viruses vs 89.4% of the
+  multi-host subset and 96.3% of the historical test subset). Any evaluation using these annotations
+  inherits that bias; it is a property of the sources, not of this extraction.
+
+VALIDATION
+  command: python3 scripts/validate_returned_annotations.py --annotations viral_functional_annotations.tsv --ids input/study_virus_taxids.txt
+  result : rows 4572619 distinct_viruses 1533 out_of 3288 issues {}
+  exit   : 0 (PASS - no provenance or mapping issues)

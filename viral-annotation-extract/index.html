@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Viral Functional Annotation Extract</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--ink:#15201c;--mut:#5d6b64;--line:#dfe5e1;--bg:#fbfcfb;--acc:#1f6f52}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:48px 24px 72px}
+h1{font-size:28px;line-height:1.25;margin:0 0 6px;letter-spacing:-.015em}
+.sub{color:var(--mut);margin:0 0 32px;font-size:15px}
+h2{font-size:15px;text-transform:uppercase;letter-spacing:.07em;color:var(--acc);margin:38px 0 12px;font-weight:650}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 8px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:600}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.h{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--mut);word-break:break-all}
+pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;margin:0 0 10px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:#eef2f0;padding:1px 5px;border-radius:4px}
+.box{background:#fff;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:6px;padding:14px 16px;margin:0 0 14px;font-size:14.5px}
+.box b{color:var(--acc)}
+a{color:var(--acc)}
+ul{padding-left:20px;margin:0 0 14px} li{margin:5px 0;font-size:14.5px}
+.hash{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#eef2f0;padding:8px 10px;border-radius:5px;display:block;margin:6px 0 0}
+</style></head><body><div class="wrap">
+<h1>Virus-specific functional annotation extract</h1>
+<p class="sub">Targeted GO / UniProtKB / ViralZone records for 3,288 study virus NCBI TaxIDs &middot; 79&nbsp;MB across 6 parts</p>
+
+<h2>Reassemble</h2>
+<p>Download all six parts into one folder, then concatenate in order:</p>
+<pre>cat part_0*.bin &gt; viral_functional_annotations_extract.zip
+sha256sum viral_functional_annotations_extract.zip
+# must equal: 95ccdbf424675a04400a829c4acd7709a6d642de8c5f5c468a7dc5d636577ed5
+unzip -t viral_functional_annotations_extract.zip</pre>
+<pre>from pathlib import Path
+import hashlib, zipfile
+parts = sorted(Path('.').glob('part_*.bin'))
+assert len(parts) == 6, f'need 6 parts, found {len(parts)}'
+out = Path('viral_functional_annotations_extract.zip')
+with out.open('wb') as dst:
+    for p in parts:
+        dst.write(p.read_bytes())
+assert hashlib.sha256(out.read_bytes()).hexdigest() == '95ccdbf424675a04400a829c4acd7709a6d642de8c5f5c468a7dc5d636577ed5'
+with zipfile.ZipFile(out) as z:
+    assert z.testzip() is None
+print('verified', out.stat().st_size, 'bytes')</pre>
+
+<h2>Parts</h2>
+<table><thead><tr><th>file</th><th class="n">bytes</th><th>sha256</th></tr></thead><tbody>
+<tr><td><a href="part_00.bin">part_00.bin</a></td><td class="n">14,000,000</td><td class="h">0be8298b455ccac86a180da54dd84e219ac00f2b680c7c3d925285bc41d7b596</td></tr>
+<tr><td><a href="part_01.bin">part_01.bin</a></td><td class="n">14,000,000</td><td class="h">326895d951021e31fe532843005fc12633310e7468d6ae36112b57bfb9ef411a</td></tr>
+<tr><td><a href="part_02.bin">part_02.bin</a></td><td class="n">14,000,000</td><td class="h">f39543fa380854eaf7f07d9f0314cff887546855da42778ce5aad2a40ad58dbd</td></tr>
+<tr><td><a href="part_03.bin">part_03.bin</a></td><td class="n">14,000,000</td><td class="h">66720d6243ef2260b8386a88842443daf41b0eb8ec00b418538f646603741fac</td></tr>
+<tr><td><a href="part_04.bin">part_04.bin</a></td><td class="n">14,000,000</td><td class="h">127590a069eacf37e3c7afbcee17c201fba4e7f9be33f5ae7b801fb631abb1da</td></tr>
+<tr><td><a href="part_05.bin">part_05.bin</a></td><td class="n">12,875,948</td><td class="h">8181d29675dac0985400c8432d5bef41f3d70fc4d7ed1fc4d2665e54274f4454</td></tr>
+</tbody></table>
+<p class="sub">Reassembled ZIP: 82,875,948 bytes &middot; 1,833 files</p>
+<span class="hash">sha256 95ccdbf424675a04400a829c4acd7709a6d642de8c5f5c468a7dc5d636577ed5</span>
+
+<h2>What is inside</h2>
+<ul>
+<li><code>viral_functional_annotations.tsv.gz</code> &mdash; 4,572,619 GO annotations, one per row, 22 provenance columns</li>
+<li><code>protein_to_study_virus_mapping.tsv.gz</code> &mdash; 370,585 UniProtKB proteins with mapping status and justification</li>
+<li><code>annotation_coverage_by_virus.tsv</code> &mdash; all 3,288 study viruses, one row each</li>
+<li><code>coverage_summary.tsv</code>, <code>coverage_by_aspect_and_evidence.tsv</code> &mdash; per-cohort breakdowns</li>
+<li><code>unmatched_identifiers.tsv</code> &mdash; 1,755 viruses with no annotation, plus 2 unmappable source taxids</li>
+<li><code>unmapped_annotation_records.tsv.gz</code> &mdash; 684 rows held out of the main table</li>
+<li><code>ambiguous_mappings.tsv</code> &mdash; empty by result: no strain descends from more than one study species</li>
+<li><code>viralzone_family_traits.tsv</code> &mdash; family-level only, host-leakage sections withheld</li>
+<li><code>go_terms_used.tsv</code> &mdash; 927 GO terms labelled from release 2026-07-26</li>
+<li><code>download_manifest.json</code> &mdash; every source, version, version evidence, licence, SHA-256 of all files</li>
+<li><code>acquisition_log.txt</code> &mdash; what was attempted, used, and blocked</li>
+<li><code>raw/</code> &mdash; 1,808 actual retrieved source files plus saved version evidence</li>
+<li><code>scripts/</code> &mdash; stdlib-only reproduction scripts with <code>RUN_ORDER.txt</code></li>
+</ul>
+
+<h2>Coverage</h2>
+<table><thead><tr><th>cohort</th><th class="n">n</th><th class="n">exact species</th><th class="n">strain only</th><th class="n">none</th><th class="n">any</th></tr></thead><tbody>
+<tr><td>all study viruses</td><td class="n">3,288</td><td class="n">244</td><td class="n">1,289</td><td class="n">1,755</td><td class="n">46.6%</td></tr>
+<tr><td>multi-host benchmark</td><td class="n">406</td><td class="n">61</td><td class="n">302</td><td class="n">43</td><td class="n">89.4%</td></tr>
+<tr><td>historical test</td><td class="n">54</td><td class="n">11</td><td class="n">41</td><td class="n">2</td><td class="n">96.3%</td></tr>
+</tbody></table>
+
+<div class="box"><b>Coverage is strongly non-random across cohorts.</b> The benchmark and test subsets are far better annotated than the full set. Any evaluation built on these annotations inherits that bias &mdash; it is a property of the sources, not of the extraction.</div>
+<div class="box"><b>Only 244 of 3,288 viruses carry annotations on their own species TaxID.</b> For 1,289 more, the available evidence sits on strain or isolate descendants, supplied as <code>VERIFIED_DESCENDANT</code> with original taxid and accession intact. Whether to treat those as species-level evidence is left open.</div>
+
+<h2>Temporal eligibility</h2>
+<p>GO annotations come from the QuickGO annotation snapshot timestamped <b>2026-07-28 10:08 UTC</b> &mdash; UniProt-GOA release 236, before the 2026-08-18 cutoff. That is a dated snapshot, not an inference from each annotation&rsquo;s own date field, and it is corroborated by the GOA FTP archive headers for <code>goa_uniprot_all.gaf.236.gz</code> (Last-Modified 29 Jul 2026), saved under <code>raw/provenance/</code>. Highest annotation date observed: 2026-07-27. Rows dated after the cutoff: zero.</p>
+<p>UniProtKB protein records are release <b>2026_04 (2026-11-04)</b>, after the cutoff. They are used only for protein and organism identity, never as annotation evidence, and are flagged ineligible in the manifest. ViralZone publishes no dated release, so all of its rows carry <code>temporally_eligible=false</code>.</p>
+
+<h2>Constraints observed</h2>
+<ul>
+<li>No virus&ndash;host association labels were used at any stage.</li>
+<li>No model was trained; no virus&ndash;virus similarity was computed.</li>
+<li>Family-level text was never promoted to species annotations.</li>
+<li>Strain annotations keep their original identifiers and are never relabelled as species-level.</li>
+<li>Missing annotation is recorded as missing, never as a biological negative.</li>
+<li>206 ViralZone sections matching host / receptor / tropism / transmission / vector / reservoir / pathology / epidemiology patterns were withheld to prevent label leakage.</li>
+<li>The 11.7&nbsp;GB <code>goa_uniprot_all.gaf.236.gz</code> was not downloaded: QuickGO serves the same release filtered by TaxID server-side. EBI publishes no checksums for archived GOA releases, and the manifest says so rather than implying verification.</li>
+</ul>
+</div></body></html>
