@@ -1,0 +1,30 @@
+name: Export virus functional annotation extract
+on:
+  push:
+    branches:
+      - viral-annotation-extract
+    paths:
+      - '.github/workflows/export-viral-annotation-archive.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout study extract
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify source archive checksum
+        shell: bash
+        run: |
+          echo "95ccdbf424675a04400a829c4acd7709a6d642de8c5f5c468a7dc5d636577ed5  viral-annotation-extract/viral_functional_annotations_extract.zip" | sha256sum --check
+      - name: Upload archive as downloadable workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: viral-functional-annotation-extract
+          path: viral-annotation-extract/viral_functional_annotations_extract.zip
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
